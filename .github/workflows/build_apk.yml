@@ -1,0 +1,77 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Analyze, test, build APK
+    runs-on: ubuntu-latest
+
+    # Настройки AI Vision для сборки. Ключа здесь нет: он берётся
+    # только из GitHub Secret ANYMODEL_API_KEY.
+    env:
+      AI_BASE_URL: https://anymodel.org/v1
+      AI_VISION_MODEL: am/llama-3.2-11b-vision-instruct
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check ANYMODEL_API_KEY secret
+        # В PR из форков секреты недоступны, там проверку пропускаем.
+        if: github.event_name != 'pull_request'
+        env:
+          AI_API_KEY: ${{ secrets.ANYMODEL_API_KEY }}
+        run: |
+          if [ -z "$AI_API_KEY" ]; then
+            echo "::error::GitHub Secret ANYMODEL_API_KEY не задан. Settings -> Secrets and variables -> Actions -> New repository secret."
+            exit 1
+          fi
+          echo "ANYMODEL_API_KEY найден (значение скрыто)."
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Prepare Android project
+        run: bash tool/prepare_android.sh
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build release APK
+        env:
+          # Секрет попадает в процесс только через env и маскируется в логах.
+          AI_API_KEY: ${{ secrets.ANYMODEL_API_KEY }}
+        run: |
+          flutter build apk --release \
+            --dart-define=AI_API_KEY="$AI_API_KEY" \
+            --dart-define=AI_BASE_URL="$AI_BASE_URL" \
+            --dart-define=AI_VISION_MODEL="$AI_VISION_MODEL"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-tarot-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30

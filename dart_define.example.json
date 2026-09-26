@@ -1,0 +1,5 @@
+{
+  "AI_API_KEY": "",
+  "AI_BASE_URL": "https://anymodel.org/v1",
+  "AI_VISION_MODEL": "am/llama-3.2-11b-vision-instruct"
+}

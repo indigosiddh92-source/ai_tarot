@@ -1,0 +1,23 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+
+# Локальные секреты - НИКОГДА не коммитить
+dart_define.dev.json
+*.keystore
+*.jks
+key.properties
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
