@@ -21,7 +21,7 @@ class ImageServiceImpl implements ImageService {
       // 1. Проверяем существование файла
       final File file = File(imagePath);
       if (!file.existsSync()) {
-        throw AppException('Файл изображения не найден');
+        throw const AppException('Файл изображения не найден');
       }
 
       // 2. Читаем исходные bytes
@@ -29,13 +29,13 @@ class ImageServiceImpl implements ImageService {
 
       // 3. Проверяем начальный размер
       if (originalBytes.lengthInBytes > AppConfig.maxImageBytes) {
-        throw ImageTooLargeException();
+        throw const ImageTooLargeException();
       }
 
       // 4. Декодируем изображение
       final img.Image? originalImage = img.decodeImage(originalBytes);
       if (originalImage == null) {
-        throw AppException('Не удалось декодировать изображение');
+        throw const AppException('Не удалось декодировать изображение');
       }
 
       // 5. Ресайзим, если слишком большое (макс 1920x1920 для Vision API)
@@ -63,7 +63,7 @@ class ImageServiceImpl implements ImageService {
 
       // 8. Финальная проверка
       if (compressed.lengthInBytes > AppConfig.maxImageBytes) {
-        throw ImageTooLargeException();
+        throw const ImageTooLargeException();
       }
 
       return compressed;
