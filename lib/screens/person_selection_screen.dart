@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../config/app_theme.dart';
 import '../models/person.dart';
 import '../services/storage_service.dart';
 import '../widgets/person_card.dart';
@@ -53,7 +52,6 @@ class _PersonSelectionScreenState extends State<PersonSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
